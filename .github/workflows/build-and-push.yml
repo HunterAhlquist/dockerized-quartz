@@ -21,8 +21,8 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -t shommey/dockerized-quartz:latest .
+          docker build -t hunterahlquist/dockerized-quartz:latest .
 
       - name: Push Docker image
         run: |
-          docker push shommey/dockerized-quartz:latest
+          docker push hunterahlquist/dockerized-quartz:latest
