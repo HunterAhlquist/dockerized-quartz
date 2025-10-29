@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: Checkout code 
         uses: actions/checkout@v2
 
       - name: Log in to Docker Hub
@@ -19,7 +19,7 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Build Docker image
+      - name: Build Docker mage
         run: |
           docker build -t hunterahlquist/dockerized-quartz:latest .
 
