@@ -21,6 +21,21 @@ BUILD_EXIT_CODE=$?
 
 if [ $BUILD_EXIT_CODE -eq 0 ]; then
   echo "Quartz build completed successfully."
+
+  # Ensure proper permissions for nginx to serve static files
+  echo "Setting permissions for static assets..."
+  chmod -R 755 /usr/share/nginx/html
+  find /usr/share/nginx/html -type f -exec chmod 644 {} \;
+
+  # Specifically ensure assets, content, and static folders are accessible
+  for dir in assets content static; do
+    if [ -d "/usr/share/nginx/html/$dir" ]; then
+      echo "Setting permissions for $dir folder..."
+      chmod -R 755 "/usr/share/nginx/html/$dir"
+      find "/usr/share/nginx/html/$dir" -type f -exec chmod 644 {} \;
+    fi
+  done
+
   if [ -n "$NOTIFY_TARGET" ]; then
     apprise -vv --title="Dockerized Quartz" --body="Quartz build completed successfully." "$NOTIFY_TARGET"
   fi
