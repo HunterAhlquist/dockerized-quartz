@@ -1,6 +1,6 @@
 # Dockerized Quartz
 
-[Quartz (v4)](https://github.com/jackyzha0/quartz) is a lightweight static site generator that helps you host your digital garden with minimal setup. This project provides an automated, Dockerized solution to build and serve Quartz sites effortlessly. Simply mount your Obsidian Vault as a Docker volume, and Quartz will handle the rest!
+[Quartz (v5)](https://github.com/jackyzha0/quartz) is a lightweight static site generator that helps you host your digital garden with minimal setup. This project provides an automated, Dockerized solution to build and serve Quartz sites effortlessly. Simply mount your Obsidian Vault as a Docker volume, and Quartz will handle the rest!
 
 ## Features
 
@@ -33,8 +33,9 @@ To quickly get started with Quartz in Docker create `docker-compose.yml` file:
             # Use your custom Quartz repo or leave blank for the default Quartz repo
             # GIT_REPO: "https://github.com/yourusername/your-quartz-site.git"
             
-            # Optional: specify a branch to checkout
-            # GIT_BRANCH: "v4"
+            # Optional: specify a branch to checkout (the default repo already
+            # defaults to the Quartz 5 branch, so this is usually unnecessary)
+            # GIT_BRANCH: "v5"
             
             # Optional: Update delay after which quartz build will trigger, default 300 seconds
             BUILD_UPDATE_DELAY: 120
@@ -82,7 +83,7 @@ For more detailed setups [see docs](docs/index.md).
 
 This project builds upon and integrates several open-source projects:  
 
-- [**Quartz v4**](https://github.com/jackyzha0/quartz) – The core static site generator that powers this project.  
+- [**Quartz v5**](https://github.com/jackyzha0/quartz) – The core static site generator that powers this project.  
 - [**Apprise**](https://github.com/caronc/apprise) – Handles notifications for build status updates.  
 - [**NGINX**](https://www.nginx.com/) – Serves the generated Quartz site with a configurable web server.  
 

@@ -13,6 +13,7 @@ By default, if no volumes provided, container will clone default Quartz repo and
    - If the repository is not present, it clones the specified Quartz repository (private or public) into the container.
    - If the repository is already cloned, it skips the cloning step and prepares the environment for Quartz to run.
    - Optionally checks out a custom branch if defined in the environment variables.
+   - Installs Quartz's external plugins (Quartz 5 tracks community plugins as separate Git repos) by running `npx quartz plugin install`.
    - Perfroms initial Quartz build by running `build-quartz.sh`
    - Optionally runs `watch-and-build-quartz.sh`script. Defaults to true.
    - Starts webhook service, if enabled.

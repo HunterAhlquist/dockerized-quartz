@@ -2,6 +2,9 @@
 
 This container supports three methods for providing your Quartz instance. You can use the default Quartz repository, pull a custom repository, or bring your own Quartz (BYOQ). Below are the details for each approach.
 
+> [!note] Quartz 5
+> This image targets **Quartz 5**. The upstream Quartz repository's default branch is now `v5`, so the default auto-pull already gets Quartz 5. If you **bring your own Quartz** (via a bind mount or a previously cloned volume) that is still on Quartz 4, migrate it to v5 following the [official migration guide](https://quartz.jzhao.xyz/getting-started/migrating) — the container will not upgrade an existing checkout for you.
+
 ### 1. Auto-Pull of the Default Quartz Repository
 
 By default, if no specific repository is provided, the container will automatically pull the main [Quartz repository](https://github.com/jackyzha0/quartz.git) on startup. This option is ideal for quickly deploying a base Quartz setup. However, since the repository is not stored in a persistent volume, you will not be able to customize the Quartz files.

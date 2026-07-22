@@ -50,6 +50,13 @@ npm install || handle_error "npm install failed. Check your Node.js version or p
 
 npm audit fix
 
+# Quartz 5 ships community plugins as external Git repositories that are tracked
+# in quartz.lock.json rather than bundled in the repo. Install them before the
+# first build (this needs the git binary, which is present in the image). This is
+# a no-op on setups that reference no external plugins.
+echo "Installing Quartz plugins..."
+npx quartz plugin install || echo "Warning: 'npx quartz plugin install' failed. External plugins may be missing; continuing to build."
+
 /usr/src/app/scripts/build-quartz.sh
 
 nginx -g 'daemon off;' &
