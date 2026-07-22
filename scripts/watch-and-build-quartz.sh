@@ -8,48 +8,45 @@ BUILD_SCRIPT="/usr/src/app/scripts/build-quartz.sh"
 # Delay in seconds before triggering a build after detecting file changes
 BUILD_UPDATE_DELAY=${BUILD_UPDATE_DELAY:-300}
 
-# Timestamp of the last detected change
-LAST_CHANGE=0
+# Debounce state. Every detected change writes a fresh timestamp to this file.
+# A scheduled build only runs if its timestamp is still the most recent one when
+# its delay expires; otherwise a newer change superseded it and it exits. This
+# resets the delay on each change without relying on killing background PIDs
+# (which the previous implementation did incorrectly across a subshell boundary).
+STAMP_FILE="$(mktemp)"
 
-# PID of the scheduled build process (if any)
-BUILD_SCHEDULED_PID=0
-
-rebuild_site() {
-    echo "Rebuilding site..."
-    
-    # Lock the build process by setting BUILD_SCHEDULED_PID to 0
-    BUILD_SCHEDULED_PID=0
-
-    $BUILD_SCRIPT
-
-    echo "Build complete!"
-}
+# Serialize builds so a change detected while a build is running queues behind it
+# via flock instead of starting a second, overlapping build.
+LOCK_FILE="/tmp/quartz-build.lock"
 
 schedule_build() {
-    # If a build is already scheduled, kill the previous waiting process
-    if [[ $BUILD_SCHEDULED_PID -ne 0 ]]; then
-        kill $BUILD_SCHEDULED_PID 2>/dev/null
-        echo "Resetting scheduled build."
-    fi
+    local my_stamp
+    my_stamp=$(date +%s%N)
+    echo "$my_stamp" > "$STAMP_FILE"
 
-    # Start the delay in the background and capture its PID
     (
-        sleep $BUILD_UPDATE_DELAY
+        sleep "$BUILD_UPDATE_DELAY"
 
-        # Once delay expires, trigger the build if no new changes occur
-        rebuild_site
+        # A newer change arrived during the delay window; let that one build.
+        if [[ "$(cat "$STAMP_FILE")" != "$my_stamp" ]]; then
+            exit 0
+        fi
+
+        echo "Rebuilding site..."
+        exec 9>"$LOCK_FILE"
+        flock 9
+        "$BUILD_SCRIPT"
+        echo "Build complete!"
     ) &
-
-    # Store the PID of the background delay process
-    BUILD_SCHEDULED_PID=$!
 }
 
-# Watch the directory for changes
-inotifywait -m -e modify,move,create,delete --exclude '.*\.swp$' --format '%w%f' $WATCH_DIR | \
-while read file; do
+# Watch the directory recursively (-r) so edits inside vault subfolders are
+# detected, not just files sitting at the top level of the vault. Exclude vim
+# swap files and anything under a .git directory (the latter is churned by
+# VAULT_DO_GIT_PULL_ON_UPDATE and would otherwise generate noise).
+inotifywait -m -r -e modify,move,create,delete --exclude '(/\.git/|\.swp$)' --format '%w%f' "$WATCH_DIR" | \
+while read -r file; do
     if [[ "$file" =~ \.md$ && "$file" != *"Untitled.md"* ]]; then
-        LAST_CHANGE=$(date +%s)
-
         schedule_build
     fi
 done
